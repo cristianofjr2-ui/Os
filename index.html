@@ -5,193 +5,116 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aeron OS</title>
     <style>
-        /* Limpeza e fim do flash azul de clique */
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            -webkit-tap-highlight-color: transparent; /* O pulo do gato pra tirar o azul */
-            user-select: none;
-            outline: none;
-            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-        }
-
-        body {
-            background: #08090c; /* Fundo fora do celular */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            overflow: hidden;
-        }
-
+        /* Reset e Fontes */
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
+        
+        /* Fundo fora do celular */
+        body { background: #121212; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        
         /* Chassi do Celular */
         .phone {
-            width: 380px;
-            height: 790px;
-            background: #000; /* Tela AMOLED 100% preta */
-            border-radius: 54px;
-            border: 9px solid #232328;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+            width: 380px; 
+            height: 790px; 
+            background: #000000; /* Tela AMOLED 100% preta */
+            border-radius: 50px;
+            position: relative; 
+            overflow: hidden; 
+            box-shadow: 0 0 30px rgba(0,0,0,0.6);
+            border: 8px solid #2a2a2a;
         }
 
-        /* Borda do Apple Intelligence (Invisível por enquanto) */
-        .ai-glow {
-            position: absolute;
-            inset: 0;
-            border-radius: 44px;
-            box-shadow: inset 0 0 0px 0px rgba(255, 255, 255, 0);
-            pointer-events: none;
-            transition: all 0.5s ease;
-            z-index: 10;
+        /* Configuração Padrão das Telas */
+        .screen { 
+            position: absolute; 
+            inset: 0; 
+            display: flex; 
+            flex-direction: column; 
+            transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.5s ease; 
         }
 
-        /* Ilha Dinâmica Minimalista */
-        .island {
-            position: absolute;
-            top: 12px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 110px;
-            height: 32px;
-            background: #000;
-            border-radius: 20px;
-            z-index: 50;
-            /* Efeito elástico brabo (spring) */
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+        /* --- TELA DE BLOQUEIO --- */
+        #lock-screen { align-items: center; justify-content: space-between; padding: 90px 0 60px 0; z-index: 10; }
+        .time { color: white; font-size: 75px; font-weight: 300; letter-spacing: -2px; }
+        .date { color: #a0a0a0; font-size: 16px; margin-top: -5px; }
+        
+        /* Botão de Biometria */
+        .fingerprint { 
+            width: 70px; height: 70px; 
+            border-radius: 50%; 
+            border: 2px solid rgba(255,255,255,0.2); 
+            display: flex; align-items: center; justify-content: center; 
+            cursor: pointer; transition: 0.2s; 
+            color: #4db8ff; font-size: 35px; 
         }
+        .fingerprint:active { background: rgba(77, 184, 255, 0.2); transform: scale(0.9); }
 
-        /* Grid de Aplicativos (Home) */
-        .home-screen {
-            padding: 80px 20px;
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 25px 15px;
+        /* --- TELA INICIAL --- */
+        #home-screen { padding: 70px 25px; opacity: 0; transform: scale(1.1); pointer-events: none; z-index: 5; }
+        .app-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+        .app { display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; }
+        .icon { 
+            width: 60px; height: 60px; 
+            border-radius: 16px; 
+            display: flex; align-items: center; justify-content: center; 
+            font-size: 28px; box-shadow: 0 4px 12px rgba(0,0,0,0.4); 
         }
+        .app span { color: #fff; font-size: 12px; font-weight: 500; }
 
-        .app-icon {
-            width: 60px;
-            height: 60px;
-            background: #222;
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 12px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: transform 0.2s cubic-bezier(0.25, 1, 0.5, 1);
-        }
+        /* Cores dos Ícones */
+        .bg-gallery { background: linear-gradient(135deg, #ff416c, #ff4b2b); }
+        .bg-camera { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+        .bg-music { background: linear-gradient(135deg, #11998e, #38ef7d); }
+        .bg-settings { background: linear-gradient(135deg, #8e9eab, #eef2f3); }
 
-        /* Efeito de apertar o app pra dentro */
-        .app-icon:active {
-            transform: scale(0.85); 
-        }
-
-        /* Barra de Gestos Inferior */
-        .gesture-bar {
-            position: absolute;
-            bottom: 8px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 130px;
-            height: 5px;
-            background: rgba(255, 255, 255, 0.8);
-            border-radius: 10px;
-            z-index: 50;
-            cursor: pointer;
-        }
-
-        /* Tela de Bloqueio por cima de tudo */
-        .lock-screen {
-            position: absolute;
-            inset: 0;
-            background: #000; /* Fundo preto absoluto */
-            z-index: 100;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-end;
-            padding-bottom: 100px;
-            /* A mágica da animação de subir pra desbloquear */
-            transition: transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.5s ease;
-        }
-
-        /* Botão da Digital */
-        .fingerprint-btn {
-            width: 70px;
-            height: 70px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #fff;
-            font-size: 30px;
-            cursor: pointer;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            transition: all 0.2s ease;
-            animation: pulse 2s infinite alternate;
-        }
-
-        /* Efeito de apertar a digital */
-        .fingerprint-btn:active {
-            transform: scale(0.9);
-            background: rgba(255, 255, 255, 0.3);
-            animation: none;
-        }
-
-        /* Batida do coração na digital */
-        @keyframes pulse {
-            from { transform: scale(1); box-shadow: 0 0 10px rgba(255, 255, 255, 0.1); }
-            to { transform: scale(1.05); box-shadow: 0 0 20px rgba(255, 255, 255, 0.3); }
-        }
+        /* --- ANIMAÇÃO DE DESBLOQUEIO --- */
+        .phone.unlocked #lock-screen { opacity: 0; transform: translateY(-40px); pointer-events: none; }
+        .phone.unlocked #home-screen { opacity: 1; transform: scale(1); pointer-events: all; }
     </style>
 </head>
 <body>
 
-    <div class="phone">
-        <!-- Brilho do Apple Intelligence (Desligado agora) -->
-        <div class="ai-glow" id="aiGlow"></div>
-
-        <!-- Tela de Bloqueio (Fica na frente) -->
-        <div class="lock-screen" id="lockScreen">
-            <div class="fingerprint-btn" onclick="desbloquearAeron()">
+    <div class="phone" id="aeron-phone">
+        
+        <!-- Tela de Bloqueio -->
+        <div id="lock-screen" class="screen">
+            <div style="text-align: center;">
+                <div class="time">18:46</div>
+                <div class="date">Dom, 13 de Set.</div>
+            </div>
+            <!-- Clica aqui para desbloquear -->
+            <div class="fingerprint" onclick="desbloquearAeron()">
                 👆
             </div>
         </div>
-
-        <!-- A Ilha (sem texto) -->
-        <div class="island" id="dynamicIsland"></div>
-
-        <!-- Tela Inicial -->
-        <div class="home-screen">
-            <div class="app-icon" style="background: linear-gradient(45deg, #ff3b30, #ff9500);">Galeria</div>
-            <div class="app-icon" style="background: linear-gradient(45deg, #34c759, #30b0c7);">Câmera</div>
-            <div class="app-icon" style="background: linear-gradient(45deg, #007aff, #5856d6);">Música</div>
-            <div class="app-icon" style="background: #333;">Ajustes</div>
+        
+        <!-- Tela Inicial (Oculta até desbloquear) -->
+        <div id="home-screen" class="screen">
+            <div class="app-grid">
+                <div class="app">
+                    <div class="icon bg-gallery">🖼️</div>
+                    <span>Galeria</span>
+                </div>
+                <div class="app">
+                    <div class="icon bg-camera">📷</div>
+                    <span>Câmera</span>
+                </div>
+                <div class="app">
+                    <div class="icon bg-music">🎵</div>
+                    <span>Música</span>
+                </div>
+                <div class="app">
+                    <div class="icon bg-settings">⚙️</div>
+                    <span>Ajustes</span>
+                </div>
+            </div>
         </div>
 
-        <!-- Barra de Gestos (substituindo o "X") -->
-        <div class="gesture-bar"></div>
     </div>
 
     <script>
-        // Lógica braba pra desbloquear com efeito elástico
+        // Função que faz a mágica de esconder a tela de bloqueio e mostrar a inicial
         function desbloquearAeron() {
-            const telaBloqueio = document.getElementById('lockScreen');
-            
-            // Joga a tela pra cima e deixa transparente
-            telaBloqueio.style.transform = 'translateY(-100%)';
-            telaBloqueio.style.opacity = '0';
-            
-            // Remove o elemento depois que a animação acaba pra gente poder clicar nos apps
-            setTimeout(() => {
-                telaBloqueio.style.display = 'none';
-            }, 700);
+            document.getElementById('aeron-phone').classList.add('unlocked');
         }
     </script>
 
