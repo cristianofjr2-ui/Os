@@ -1,346 +1,213 @@
-ne;
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aeron OS</title>
+    <style>
+        /* Reset de respeito para não dar bronca de alinhamento */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
 
-    transform:
-        translate3d(0,-55px,0)
-        scale(.985);
-}
+        /* Fundo fora do celular */
+        body {
+            background: #0f0f0f;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
 
-.phone.unlocked #home-screen {
+        /* Chassi do Aeron */
+        .aeron-device {
+            width: 380px;
+            height: 790px;
+            background: #000000; /* Preto AMOLED 100% cabuloso */
+            border-radius: 50px;
+            position: relative;
+            overflow: hidden;
+            border: 8px solid #1a1a1a;
+            box-shadow: 0 0 50px rgba(0,0,0,0.9);
+        }
 
-    opacity: 1;
+        /* Telas base */
+        .screen {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
 
-    pointer-events: auto;
+        /* --- TELA DE BLOQUEIO --- */
+        #lock-screen {
+            z-index: 10;
+            align-items: center;
+            justify-content: space-between;
+            padding: 90px 0 60px 0;
+            /* Transição suave deslizando para cima */
+            transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.5s ease;
+        }
 
-    transform:
-        translate3d(0,0,0)
-        scale(1);
-}
+        .clock-container {
+            text-align: center;
+        }
+        
+        .time {
+            color: #ffffff;
+            font-size: 82px;
+            font-weight: 200;
+            letter-spacing: -3px;
+        }
+        
+        .date {
+            color: #888888;
+            font-size: 16px;
+            margin-top: -5px;
+            font-weight: 500;
+        }
 
-/* =========================================================
-   HOME ICON ENTRANCE
-   ========================================================= */
+        /* Botão Biométrico com Micro-animação Elástica */
+        .biometrics {
+            width: 75px;
+            height: 75px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #00f2fe;
+            font-size: 38px;
+            /* Efeito elástico super fluido */
+            transition: transform 0.2s cubic-bezier(0.68, -0.55, 0.265, 1.55), background 0.3s;
+        }
 
-.phone.unlocked .app {
-    animation:
-        appAppear .55s cubic-bezier(.16,1,.3,1) both;
-}
+        .biometrics:active {
+            transform: scale(0.85);
+            background: rgba(0, 242, 254, 0.1);
+        }
 
-.phone.unlocked .app:nth-child(1) {
-    animation-delay: .04s;
-}
+        /* --- TELA INICIAL (HOME) --- */
+        #home-screen {
+            z-index: 5;
+            padding: 80px 25px;
+            opacity: 0;
+            transform: scale(0.92); /* Efeito de profundidade: vem do fundo */
+            pointer-events: none;
+            transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.6s ease;
+        }
 
-.phone.unlocked .app:nth-child(2) {
-    animation-delay: .065s;
-}
+        .app-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 25px 15px;
+        }
 
-.phone.unlocked .app:nth-child(3) {
-    animation-delay: .09s;
-}
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
 
-.phone.unlocked .app:nth-child(4) {
-    animation-delay: .115s;
-}
+        .app-icon {
+            width: 62px;
+            height: 62px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.6);
+            transition: transform 0.2s ease;
+        }
+        
+        .app-icon:active {
+            transform: scale(0.9); /* Micro-animação nos apps também */
+        }
 
-.phone.unlocked .app:nth-child(5) {
-    animation-delay: .14s;
-}
+        .app-label {
+            color: #ffffff;
+            font-size: 12px;
+            font-weight: 500;
+        }
 
-.phone.unlocked .app:nth-child(6) {
-    animation-delay: .165s;
-}
+        /* Cores Premium dos Apps */
+        .bg-camera { background: linear-gradient(135deg, #ff758c, #ff7eb3); }
+        .bg-gallery { background: linear-gradient(135deg, #a18cd1, #fbc2eb); }
+        .bg-music { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+        .bg-settings { background: linear-gradient(135deg, #434343, #282828); }
 
-.phone.unlocked .app:nth-child(7) {
-    animation-delay: .19s;
-}
+        /* --- A MÁGICA DA ANIMAÇÃO (ACIONADA PELO JAVASCRIPT) --- */
+        /* Some com a tela de bloqueio jogando ela pra cima */
+        .aeron-device.unlocked #lock-screen {
+            opacity: 0;
+            transform: translateY(-60px);
+            pointer-events: none;
+        }
 
-.phone.unlocked .app:nth-child(8) {
-    animation-delay: .215s;
-}
-
-@keyframes appAppear {
-
-    from {
-        opacity: 0;
-
-        transform:
-            translateY(15px)
-            scale(.86);
-    }
-
-    to {
-        opacity: 1;
-
-        transform:
-            translateY(0)
-            scale(1);
-    }
-}
-
-/* =========================================================
-   RESPONSIVIDADE
-   ========================================================= */
-
-@media (max-height: 700px) {
-
-    .phone {
-        transform: scale(.85);
-    }
-}
-
-@media (max-width: 420px) {
-
-    body {
-        background: #000;
-    }
-
-    .phone {
-        width: 100vw;
-        height: 100vh;
-
-        border: 0;
-
-        border-radius: 0;
-
-        box-shadow: none;
-    }
-}
-</style>
+        /* Traz a tela inicial pra frente */
+        .aeron-device.unlocked #home-screen {
+            opacity: 1;
+            transform: scale(1);
+            pointer-events: auto;
+        }
+    </style>
 </head>
-
 <body>
 
-<div class="phone" id="aeron-phone">
-
-    <!-- =====================================================
-         LOCK SCREEN
-         ===================================================== -->
-
-    <section id="lock-screen" class="screen">
-
-        <div class="status-bar">
-
-            <span id="lock-status-time">
-                19:06
-            </span>
-
-            <div class="status-right">
-
-                <span class="status-icon">◉</span>
-                <span class="status-icon">⌁</span>
-
-                <div class="battery">
-                    <div class="battery-level"></div>
+    <div class="aeron-device" id="device">
+        
+        <!-- Tela de Bloqueio -->
+        <div id="lock-screen" class="screen">
+            <div class="clock-container">
+                <div class="time">18:45</div>
+                <div class="date">Dom, 13 de Set.</div>
+            </div>
+            
+            <div class="biometrics" onclick="desbloquear()">
+                ◎
+            </div>
+        </div>
+        
+        <!-- Tela Inicial -->
+        <div id="home-screen" class="screen">
+            <div class="app-grid">
+                <div class="app-container">
+                    <div class="app-icon bg-camera">📸</div>
+                    <div class="app-label">Câmera</div>
                 </div>
-
-            </div>
-
-        </div>
-
-        <div class="lock-time">
-
-            <div
-                class="time"
-                id="clock">
-                19:06
-            </div>
-
-            <div
-                class="date"
-                id="date">
-                Domingo, 13 de setembro
-            </div>
-
-        </div>
-
-        <div class="lock-hint">
-            Toque para desbloquear
-        </div>
-
-        <div class="biometric-area">
-
-            <button
-                class="fingerprint"
-                id="fingerprint"
-                aria-label="Desbloquear">
-
-                <span class="fingerprint-symbol">
-                    ◉
-                </span>
-
-            </button>
-
-        </div>
-
-    </section>
-
-
-    <!-- =====================================================
-         HOME
-         ===================================================== -->
-
-    <section id="home-screen" class="screen">
-
-        <div class="status-bar">
-
-            <span id="home-status-time">
-                19:06
-            </span>
-
-            <div class="status-right">
-
-                <span>◉</span>
-                <span>⌁</span>
-
-                <div class="battery">
-                    <div class="battery-level"></div>
+                <div class="app-container">
+                    <div class="app-icon bg-gallery">🖼️</div>
+                    <div class="app-label">Galeria</div>
                 </div>
-
+                <div class="app-container">
+                    <div class="app-icon bg-music">🎵</div>
+                    <div class="app-label">Música</div>
+                </div>
+                <div class="app-container">
+                    <div class="app-icon bg-settings">⚙️</div>
+                    <div class="app-label">Ajustes</div>
+                </div>
             </div>
-
         </div>
 
+    </div>
 
-        <div class="home-header">
-
-            <div class="home-greeting">
-
-                <span class="home-small">
-                    AERON OS
-                </span>
-
-                <span class="home-title">
-                    Boa noite
-                </span>
-
-            </div>
-
-            <button class="profile-button">
-                ✦
-            </button>
-
-        </div>
-
-
-        <!-- APPS -->
-
-        <div class="app-grid">
-
-            <div
-                class="app"
-                data-app="Galeria"
-                data-icon="🖼️"
-                data-class="gallery">
-
-                <div class="icon gallery">🖼️</div>
-                <span class="app-name">Galeria</span>
-
-            </div>
-
-
-            <div
-                class="app"
-                data-app="Câmera"
-                data-icon="📷"
-                data-class="camera">
-
-                <div class="icon camera">📷</div>
-                <span class="app-name">Câmera</span>
-
-            </div>
-
-
-            <div
-                class="app"
-                data-app="Música"
-                data-icon="♫"
-                data-class="music">
-
-                <div class="icon music">♫</div>
-                <span class="app-name">Música</span>
-
-            </div>
-
-
-            <div
-                class="app"
-                data-app="Ajustes"
-                data-icon="⚙"
-                data-class="settings">
-
-                <div class="icon settings">⚙</div>
-                <span class="app-name">Ajustes</span>
-
-            </div>
-
-
-            <div
-                class="app"
-                data-app="Navegador"
-                data-icon="◎"
-                data-class="browser">
-
-                <div class="icon browser">◎</div>
-                <span class="app-name">Navegador</span>
-
-            </div>
-
-
-            <div
-                class="app"
-                data-app="Mensagens"
-                data-icon="●"
-                data-class="messages">
-
-                <div class="icon messages">●</div>
-                <span class="app-name">Mensagens</span>
-
-            </div>
-
-
-            <div
-                class="app"
-                data-app="Calendário"
-                data-icon="31"
-                data-class="calendar">
-
-                <div class="icon calendar">31</div>
-                <span class="app-name">Calendário</span>
-
-            </div>
-
-
-            <div
-                class="app"
-                data-app="Notas"
-                data-icon="✎"
-                data-class="notes">
-
-                <div class="icon notes">✎</div>
-                <span class="app-name">Notas</span>
-
-            </div>
-
-        </div>
-
-
-        <!-- WIDGET -->
-
-        <div class="widget">
-
-            <div class="widget-top">
-
-                <span class="widget-label">
-                    AGORA
-                </span>
-
-                <span class="widget-label">
-                    AERON
-                </span>
-
-            </div>
-
-            <span
-                class="widget-value"
-                id="widget-time">
-                19:06
-       
+    <script>
+        function desbloquear() {
+            // Essa linha pega o celular e adiciona a classe "unlocked", disparando as animações CSS!
+            document.getElementById('device').classList.add('unlocked');
+        }
+    </script>
+</body>
+</html>
