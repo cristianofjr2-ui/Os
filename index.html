@@ -1,213 +1,728 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aeron OS</title>
-    <style>
-        /* Reset de respeito para não dar bronca de alinhamento */
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            user-select: none;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            -webkit-tap-highlight-color: transparent;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Aeron — Linha Aero 27</title>
+  <style>
+    :root {
+      --bg: #000000;
+      --card-bg: #0d0d11;
+      --accent: #2997ff;
+      --accent-green: #30d158;
+      --text: #f5f5f7;
+      --text-muted: #86868b;
+      --border: rgba(255, 255, 255, 0.08);
+      --font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+    }
 
-        /* Fundo fora do celular */
-        body {
-            background: #0f0f0f;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            overflow: hidden;
-        }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: var(--font);
+      -webkit-font-smoothing: antialiased;
+    }
 
-        /* Chassi do Aeron */
-        .aeron-device {
-            width: 380px;
-            height: 790px;
-            background: #000000; /* Preto AMOLED 100% cabuloso */
-            border-radius: 50px;
-            position: relative;
-            overflow: hidden;
-            border: 8px solid #1a1a1a;
-            box-shadow: 0 0 50px rgba(0,0,0,0.9);
-        }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+      scroll-behavior: smooth;
+    }
 
-        /* Telas base */
-        .screen {
-            position: absolute;
-            inset: 0;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-        }
+    /* Navbar */
+    nav {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      height: 54px;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 48px;
+      border-bottom: 1px solid var(--border);
+    }
 
-        /* --- TELA DE BLOQUEIO --- */
-        #lock-screen {
-            z-index: 10;
-            align-items: center;
-            justify-content: space-between;
-            padding: 90px 0 60px 0;
-            /* Transição suave deslizando para cima */
-            transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.5s ease;
-        }
+    .nav-logo {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: 3px;
+      background: linear-gradient(90deg, #fff, #888);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
 
-        .clock-container {
-            text-align: center;
-        }
-        
-        .time {
-            color: #ffffff;
-            font-size: 82px;
-            font-weight: 200;
-            letter-spacing: -3px;
-        }
-        
-        .date {
-            color: #888888;
-            font-size: 16px;
-            margin-top: -5px;
-            font-weight: 500;
-        }
+    .nav-links {
+      display: flex;
+      gap: 28px;
+      list-style: none;
+      font-size: 13px;
+      color: var(--text-muted);
+      align-items: center;
+    }
 
-        /* Botão Biométrico com Micro-animação Elástica */
-        .biometrics {
-            width: 75px;
-            height: 75px;
-            border-radius: 50%;
-            border: 2px solid rgba(255, 255, 255, 0.15);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            color: #00f2fe;
-            font-size: 38px;
-            /* Efeito elástico super fluido */
-            transition: transform 0.2s cubic-bezier(0.68, -0.55, 0.265, 1.55), background 0.3s;
-        }
+    .nav-links a {
+      color: inherit;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
 
-        .biometrics:active {
-            transform: scale(0.85);
-            background: rgba(0, 242, 254, 0.1);
-        }
+    .nav-links a:hover {
+      color: #fff;
+    }
 
-        /* --- TELA INICIAL (HOME) --- */
-        #home-screen {
-            z-index: 5;
-            padding: 80px 25px;
-            opacity: 0;
-            transform: scale(0.92); /* Efeito de profundidade: vem do fundo */
-            pointer-events: none;
-            transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.6s ease;
-        }
+    .nav-buy-btn {
+      background: var(--accent);
+      color: #fff !important;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-weight: 600;
+      font-size: 12px;
+    }
 
-        .app-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 25px 15px;
-        }
+    /* Sections */
+    section {
+      padding: 100px 24px;
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
 
-        .app-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
-        }
+    .section-tag {
+      color: var(--accent);
+      text-transform: uppercase;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      margin-bottom: 14px;
+    }
 
-        .app-icon {
-            width: 62px;
-            height: 62px;
-            border-radius: 18px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 30px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.6);
-            transition: transform 0.2s ease;
-        }
-        
-        .app-icon:active {
-            transform: scale(0.9); /* Micro-animação nos apps também */
-        }
+    .section-title {
+      font-size: clamp(36px, 6vw, 72px);
+      font-weight: 800;
+      line-height: 1.08;
+      letter-spacing: -1.5px;
+      margin-bottom: 18px;
+      background: linear-gradient(180deg, #ffffff 40%, #777780 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
 
-        .app-label {
-            color: #ffffff;
-            font-size: 12px;
-            font-weight: 500;
-        }
+    .section-desc {
+      font-size: clamp(16px, 2.3vw, 21px);
+      color: var(--text-muted);
+      max-width: 740px;
+      line-height: 1.5;
+      margin-bottom: 40px;
+    }
 
-        /* Cores Premium dos Apps */
-        .bg-camera { background: linear-gradient(135deg, #ff758c, #ff7eb3); }
-        .bg-gallery { background: linear-gradient(135deg, #a18cd1, #fbc2eb); }
-        .bg-music { background: linear-gradient(135deg, #4facfe, #00f2fe); }
-        .bg-settings { background: linear-gradient(135deg, #434343, #282828); }
+    /* Reveal */
+    .reveal {
+      opacity: 0;
+      transform: translateY(35px);
+      transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
 
-        /* --- A MÁGICA DA ANIMAÇÃO (ACIONADA PELO JAVASCRIPT) --- */
-        /* Some com a tela de bloqueio jogando ela pra cima */
-        .aeron-device.unlocked #lock-screen {
-            opacity: 0;
-            transform: translateY(-60px);
-            pointer-events: none;
-        }
+    .reveal.active {
+      opacity: 1;
+      transform: translateY(0);
+    }
 
-        /* Traz a tela inicial pra frente */
-        .aeron-device.unlocked #home-screen {
-            opacity: 1;
-            transform: scale(1);
-            pointer-events: auto;
-        }
-    </style>
+    /* Hero / Cards de Aparelhos */
+    .hero-device-wrapper {
+      display: flex;
+      justify-content: center;
+      gap: 32px;
+      flex-wrap: wrap;
+      margin-top: 20px;
+      width: 100%;
+    }
+
+    .phone-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 36px;
+      padding: 40px 28px;
+      width: 370px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      transition: transform 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
+    }
+
+    .phone-card:hover {
+      transform: translateY(-8px);
+      border-color: rgba(41, 151, 255, 0.4);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8), 0 0 50px rgba(41, 151, 255, 0.15);
+    }
+
+    .phone-chassis {
+      width: 220px;
+      height: 440px;
+      background: #0f0f13;
+      border-radius: 46px;
+      border: 3.5px solid #2d2d35;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 16px;
+      margin: 24px 0;
+      box-shadow: inset 0 0 16px rgba(255, 255, 255, 0.04);
+    }
+
+    /* Aero Visor Gigante do Ultra (estilo Oppo circular maciço) */
+    .visor-ultra-giant {
+      width: 165px;
+      height: 165px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 45% 45%, #22222a, #08080c);
+      border: 3px solid #3d3d46;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      padding: 14px;
+      gap: 10px;
+      align-items: center;
+      justify-items: center;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.9), inset 0 0 15px rgba(0,0,0,0.8);
+      margin-top: 8px;
+    }
+
+    .ultra-lens {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, #192033, #040508);
+      border: 2px solid #333644;
+      box-shadow: inset 0 0 8px rgba(41, 151, 255, 0.6);
+    }
+
+    .ultra-periscope {
+      width: 44px;
+      height: 38px;
+      border-radius: 8px;
+      background: #040508;
+      border: 2px solid #b89b5f;
+      box-shadow: inset 0 0 6px rgba(184, 155, 95, 0.4);
+    }
+
+    /* Módulo Base */
+    .module-base {
+      width: 46px;
+      height: 140px;
+      background: #18181f;
+      border-radius: 24px;
+      border: 1.5px solid #31313d;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-evenly;
+      align-items: center;
+      align-self: flex-start;
+      margin-left: 12px;
+      margin-top: 10px;
+    }
+
+    .base-lens {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, #1f2533, #08080c);
+      border: 1.5px solid #313543;
+    }
+
+    .phone-bottom-logo {
+      position: absolute;
+      bottom: 22px;
+      font-size: 12px;
+      letter-spacing: 3.5px;
+      color: #666675;
+      font-weight: 700;
+    }
+
+    /* Chip & Benchmark */
+    .chip-container {
+      background: linear-gradient(180deg, #0d0d12 0%, #050508 100%);
+      border: 1px solid var(--border);
+      border-radius: 36px;
+      padding: 60px 40px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .chip-die {
+      width: 140px;
+      height: 140px;
+      background: #08080b;
+      border: 2px solid #2997ff;
+      border-radius: 28px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 50px rgba(41, 151, 255, 0.3), inset 0 0 20px rgba(41, 151, 255, 0.2);
+      margin-bottom: 24px;
+    }
+
+    .chip-die span:first-child {
+      font-size: 19px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      color: #fff;
+    }
+
+    .chip-die span:last-child {
+      font-size: 12px;
+      color: var(--accent);
+      font-weight: 700;
+      margin-top: 4px;
+    }
+
+    .benchmark-score {
+      font-size: clamp(40px, 7vw, 76px);
+      font-weight: 900;
+      letter-spacing: -2px;
+      color: #ffffff;
+      margin: 14px 0;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Simulador de Câmera com Zoom Centralizado */
+    .zoom-showcase {
+      width: 100%;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 36px;
+      padding: 48px 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .zoom-viewport {
+      width: 100%;
+      max-width: 860px;
+      height: 480px;
+      border-radius: 24px;
+      overflow: hidden;
+      position: relative;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: #020204;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .space-stage {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      background: radial-gradient(circle at center, #0f1424 0%, #030408 80%);
+      transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+      transform-origin: center center;
+    }
+
+    /* Planeta Central Fotorrealista em CSS Puro */
+    .planet-core {
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 30%, #e0a96d 0%, #a45a2a 45%, #4a2110 80%, #150804 100%);
+      box-shadow: inset -30px -30px 50px rgba(0, 0, 0, 0.9), 0 0 50px rgba(224, 169, 109, 0.3);
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.5s ease;
+    }
+
+    /* Anéis do Planeta */
+    .planet-ring {
+      position: absolute;
+      width: 340px;
+      height: 60px;
+      border-radius: 50%;
+      border: 10px solid rgba(210, 175, 130, 0.45);
+      border-left-color: transparent;
+      transform: rotate(-24deg);
+      box-shadow: 0 0 20px rgba(210, 175, 130, 0.2);
+    }
+
+    /* Detalhe de cratera revelado no zoom */
+    .planet-crater {
+      position: absolute;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #351509;
+      border: 2px solid #5a2612;
+      top: 38%;
+      left: 36%;
+      opacity: 0.6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 8px;
+      color: #e0a96d;
+    }
+
+    .reticle {
+      position: absolute;
+      width: 70px;
+      height: 70px;
+      border: 1px solid rgba(41, 151, 255, 0.5);
+      border-radius: 50%;
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .reticle::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      background: var(--accent);
+      border-radius: 50%;
+    }
+
+    .hud-info {
+      position: absolute;
+      bottom: 18px;
+      left: 20px;
+      font-size: 13px;
+      letter-spacing: 1px;
+      color: #fff;
+      background: rgba(0, 0, 0, 0.6);
+      padding: 6px 14px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+
+    .zoom-controls {
+      display: flex;
+      gap: 10px;
+      margin-top: 24px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .zoom-btn {
+      background: #181822;
+      border: 1px solid var(--border);
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s, transform 0.2s;
+    }
+
+    .zoom-btn:hover, .zoom-btn.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      transform: scale(1.05);
+    }
+
+    /* Specs Grid */
+    .specs-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+      width: 100%;
+      margin-top: 30px;
+    }
+
+    .spec-item {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 28px;
+      padding: 36px 28px;
+      text-align: left;
+    }
+
+    .spec-item h4 {
+      font-size: 13px;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 8px;
+    }
+
+    .spec-item .spec-value {
+      font-size: 34px;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 10px;
+    }
+
+    .spec-item p {
+      color: var(--text-muted);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    /* Seção de Compra / Preços */
+    .pricing-section {
+      width: 100%;
+      padding-top: 40px;
+    }
+
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 32px;
+      width: 100%;
+      margin-top: 30px;
+    }
+
+    .pricing-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 36px;
+      padding: 48px 32px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      position: relative;
+      transition: border-color 0.3s ease, transform 0.3s ease;
+    }
+
+    .pricing-card.highlight {
+      border-color: rgba(41, 151, 255, 0.5);
+      box-shadow: 0 0 50px rgba(41, 151, 255, 0.12);
+    }
+
+    .pricing-card:hover {
+      transform: translateY(-6px);
+    }
+
+    .pricing-badge {
+      position: absolute;
+      top: -14px;
+      background: var(--accent);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      padding: 6px 16px;
+      border-radius: 999px;
+      text-transform: uppercase;
+    }
+
+    .price-value {
+      font-size: 46px;
+      font-weight: 900;
+      color: #ffffff;
+      margin: 16px 0 6px 0;
+    }
+
+    .price-installments {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 28px;
+    }
+
+    .features-list {
+      list-style: none;
+      width: 100%;
+      margin-bottom: 36px;
+      text-align: left;
+    }
+
+    .features-list li {
+      font-size: 14px;
+      color: #d1d1d6;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .features-list li::before {
+      content: "✓";
+      color: var(--accent);
+      font-weight: bold;
+    }
+
+    .checkout-btn {
+      width: 100%;
+      background: #ffffff;
+      color: #000000;
+      border: none;
+      padding: 16px;
+      border-radius: 999px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.2s;
+    }
+
+    .checkout-btn:hover {
+      background: #e5e5ea;
+      transform: scale(1.02);
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 60px 24px;
+      font-size: 13px;
+      color: #555560;
+      text-align: center;
+    }
+  </style>
 </head>
 <body>
 
-    <div class="aeron-device" id="device">
-        
-        <!-- Tela de Bloqueio -->
-        <div id="lock-screen" class="screen">
-            <div class="clock-container">
-                <div class="time">18:45</div>
-                <div class="date">Dom, 13 de Set.</div>
-            </div>
-            
-            <div class="biometrics" onclick="desbloquear()">
-                ◎
-            </div>
-        </div>
-        
-        <!-- Tela Inicial -->
-        <div id="home-screen" class="screen">
-            <div class="app-grid">
-                <div class="app-container">
-                    <div class="app-icon bg-camera">📸</div>
-                    <div class="app-label">Câmera</div>
-                </div>
-                <div class="app-container">
-                    <div class="app-icon bg-gallery">🖼️</div>
-                    <div class="app-label">Galeria</div>
-                </div>
-                <div class="app-container">
-                    <div class="app-icon bg-music">🎵</div>
-                    <div class="app-label">Música</div>
-                </div>
-                <div class="app-container">
-                    <div class="app-icon bg-settings">⚙️</div>
-                    <div class="app-label">Ajustes</div>
-                </div>
-            </div>
+  <!-- Navbar -->
+  <nav>
+    <div class="nav-logo">AERON</div>
+    <ul class="nav-links">
+      <li><a href="#ultra">Aero 27 Ultra</a></li>
+      <li><a href="#base">Aero 27</a></li>
+      <li><a href="#camera">Câmeras</a></li>
+      <li><a href="#loja" class="nav-buy-btn">Comprar</a></li>
+    </ul>
+  </nav>
+
+  <!-- Hero Principal -->
+  <section class="hero-container">
+    <span class="section-tag reveal">Nova Geração 2026</span>
+    <h1 class="section-title reveal">Aero 27 Series.<br/>Engenharia sem limites.</h1>
+    <p class="section-desc reveal">
+      Aeron Max 6 Pro em 2nm GAAFET, células de silício-carbono de até 6.700 mAh e o Aero Visor com 200 MP e 10x óptico contínuo.
+    </p>
+
+    <div class="hero-device-wrapper">
+      <!-- Card Ultra -->
+      <div class="phone-card reveal" id="ultra">
+        <span class="section-tag">Flagship Máximo</span>
+        <h2 style="font-size: 26px; font-weight: 800; margin-top: 4px;">Aero 27 Ultra</h2>
+        <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">Titânio Aeroespacial & Cerâmica</p>
+
+        <div class="phone-chassis">
+          <!-- Aero Visor Grandão estilo Find X circular -->
+          <div class="visor-ultra-giant">
+            <div class="ultra-lens" title="200 MP Principal (1x)"></div>
+            <div class="ultra-lens" title="200 MP Telefoto (3.5x)"></div>
+            <div class="ultra-periscope" title="64 MP Periscópio (10x)"></div>
+            <div class="ultra-lens" style="width: 36px; height: 36px;" title="50 MP Ultrawide (0.6x)"></div>
+          </div>
+          <div class="phone-bottom-logo">AERON</div>
         </div>
 
+        <p style="font-size: 15px; color: #fff; font-weight: 700;">Aero Visor Gigante</p>
+        <p style="font-size: 13px; color: var(--accent); margin-top: 4px;">6.700 mAh + 120W Turbo</p>
+      </div>
+
+      <!-- Card Base -->
+      <div class="phone-card reveal" id="base">
+        <span class="section-tag" style="color: var(--accent-green);">Campeão em Autonomia</span>
+        <h2 style="font-size: 26px; font-weight: 800; margin-top: 4px;">Aero 27</h2>
+        <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">Alumínio Escovado & Vidro Acetinado</p>
+
+        <div class="phone-chassis">
+          <div class="module-base">
+            <div class="base-lens" title="50 MP Ultrawide"></div>
+            <div class="base-lens" title="50 MP Principal"></div>
+            <div class="base-lens" title="50 MP Telefoto 3x"></div>
+          </div>
+          <div class="phone-bottom-logo">AERON</div>
+        </div>
+
+        <p style="font-size: 15px; color: #fff; font-weight: 700;">Conjunto Triplo 50 MP</p>
+        <p style="font-size: 13px; color: var(--accent-green); margin-top: 4px;">6.000 mAh + 80W Turbo</p>
+      </div>
     </div>
+  </section>
 
-    <script>
-        function desbloquear() {
-            // Essa linha pega o celular e adiciona a classe "unlocked", disparando as animações CSS!
-            document.getElementById('device').classList.add('unlocked');
-        }
-    </script>
-</body>
-</html>
+  <!-- Processador & Benchmark -->
+  <section>
+    <span class="section-tag reveal">Poder de Silício</span>
+    <h2 class="section-title reveal">Aeron Max 6 Pro (2nm)</h2>
+    <p class="section-desc reveal">
+      Arquitetura GAAFET de 2 nanômetros com empilhamento 3D de Cache L4. Zero gargalo térmico e resposta instantânea.
+    </p>
+
+    <div class="chip-container reveal">
+      <div class="chip-die">
+        <span>MAX 6</span>
+        <span>2nm GAAFET</span>
+      </div>
+      <p style="color: var(--text-muted); font-size: 13px; text-transform: uppercase; letter-spacing: 1.5px;">Pontuação Oficial AnTuTu Benchmark</p>
+      <div class="benchmark-score">5.418.392</div>
+      <p style="color: #a1a1a6; max-width: 600px; font-size: 15px; line-height: 1.6;">
+        Potência bruta no Aero 27 Ultra. No Aero 27 Base, a mesma matriz atinge <strong>5.394.102 pontos</strong> estáveis.
+      </p>
+    </div>
+  </section>
+
+  <!-- Simulador de Câmera 200MP com Ultrawide e Zoom Centralizado -->
+  <section id="camera">
+    <span class="section-tag reveal">Sistema de Imagem</span>
+    <h2 class="section-title reveal">Do 0.6x ao 10x Prismático</h2>
+    <p class="section-desc reveal">
+      Alterne entre as distâncias focais. O planeta fica 100% centralizado, revelando relevos e microdetalhes a cada aproximação.
+    </p>
+
+    <div class="zoom-showcase reveal">
+      <div class="zoom-viewport">
+        <div class="space-stage" id="stage">
+          <div class="planet-ring"></div>
+          <div class="planet-core">
+            <div class="planet-crater" id="craterDetail">Cratera Alfa</div>
+            <div class="reticle"></div>
+          </div>
+        </div>
+        <div class="hud-info" id="hudStatus">Modo: 1x Principal (200 MP RAW)</div>
+      </div>
+
+      <div class="zoom-controls">
+        <button class="zoom-btn" onclick="applyFocal(0.6, '0.6x Ultrawide (50 MP - 122°)')">0.6x (Ultrawide)</button>
+        <button class="zoom-btn active" onclick="applyFocal(1, '1x Principal (200 MP RAW)')">1x (Principal)</button>
+        <button class="zoom-btn" onclick="applyFocal(3.5, '3.5x Telefoto Óptica (200 MP)')">3.5x (Telefoto)</button>
+        <button class="zoom-btn" onclick="applyFocal(7, '7x Sensor In-Crop (Sem Perda)')">7x (In-Sensor)</button>
+        <button class="zoom-btn" onclick="applyFocal(10, '10x Super Periscópio Físico (64 MP)')">10x (Periscópio)</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Autonomia & Carregamento -->
+  <section>
+    <span class="section-tag reveal">Energia & Chassi</span>
+    <h2 class="section-title reveal">Capacidade sem Concessões</h2>
+    
+    <div class="specs-grid">
+      <div class="spec-item reveal">
+        <h4>Aero 27 Ultra</h4>
+        <div class="spec-value">6.700 mAh</div>
+        <p>Silício-Carbono de altíssima densidade energética. Mantém o celular fino mesmo abrigando o Aero Visor gigante.</p>
+        <p style="color: #fff; font-weight: 700; margin-top: 14px;">120W com fio (0-100% em ~18 min) + 50W sem fio</p>
+      </div>
+
+      <div class="spec-item reveal">
+        <h4>Aero 27 Base</h4>
+        <div class="spec-value">6.000 mAh</div>
+        <p>Espaço interno maximizado pelo conjunto triplo linear de 50 MP, garantindo até 2 dias de uso contínuo.</p>
+        <p style="color: #fff; font-weight: 700; margin-top: 14px;">80W com fio + 15W sem fio</p>
+      </div>
+
+      <div class="spe
+          
